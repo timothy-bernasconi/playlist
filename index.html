@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Clement : Le Jukebox Humain</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-color: #181818;
+            --text-main: #FFFFFF;
+            --text-sub: #B3B3B3;
+            --spotify-green: #1DB954;
+        }
+
+        body { 
+            font-family: 'Circular', Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+            color: var(--text-main); 
+            padding: 40px; 
+            margin: 0; 
+            height: 100vh;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .container { 
+            max-width: 500px; 
+            margin: auto; 
+            background-color: rgba(24, 24, 24, 0); 
+            border: 1px solid rgba(255, 255, 255, 0.308);
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { color: var(--text-main); font-size: 1.5em; margin-bottom: 20px; }
+
+        .stats { 
+            background: #282828; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 20px 0; 
+            color: var(--text-sub); 
+            font-size: 0.9em;
+        }
+
+        button { 
+            background-color: var(--spotify-green); 
+            color: black; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1em; 
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        button:hover { 
+            background-color: #1ed760; 
+            transform: scale(1.05); 
+        }
+
+        #affichage { 
+            margin-top: 40px; 
+            min-height: 100px; 
+        }
+
+        #affichage strong { 
+            display: block; 
+            font-size: 1.6em; 
+            color: var(--text-main); 
+        }
+
+        #affichage em { 
+            font-style: normal; 
+            color: var(--text-sub); 
+            font-size: 1.2em; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>La playlist (Random) de Clément</h1>
+        
+        <div class="stats">
+            <strong>Playlist :</strong>
+            <p id="compteur">Titres restants : 29 / 29</p>
+        </div>
+
+        <button onclick="generer()">Chanson suivante</button>
+        <div id="affichage"></div>
+    </div>
+
+    <script>
+        const baseRepertoire = [
+            { titre: "Ma chérie", artiste: "DJ Antoine", img : "https://i.ibb.co/RpwrFQWd/661cb68038e41da2246be48b-CR5-C9234-DJANTOINE-BTF-COVER-lores.jpg"},
+            { titre: "Champs-Élysées", artiste: "SCH", img : "https://i.ibb.co/Lzz3RsRG/1200x680.jpg" },
+            { titre: "Wati Big Ali", artiste: "Sexion d'Assaut", img :"https://i.ibb.co/n84mCmT0/sexion.jpg" },
+            { titre: "Quoi ma gueule", artiste: "Johnny Hallyday", img : "https://i.ibb.co/sdwBYqH2/jo.jpg" },
+            { titre: "Elle la elle la", artiste: "France Gall", img : "https://i.ibb.co/prfwHgMY/13318420.webp" },
+            { titre: "Diego", artiste: "Johnny Hallyday", img: "https://i.ibb.co/sdwBYqH2/jo.jpg" },
+            { titre: "Scream and Shout", artiste: "Black Eyed Peas", img : "https://i.ibb.co/kgCNG8Gr/Les-Black-Eyed-Peas-en-concert-au-VIP-Room-Paris-3-cropped.jpg" },
+            { titre: "J'ai laissé", artiste: "Christophe Maé", img : "https://i.ibb.co/3yRt9RKY/Christophe-Mae-Cest-drole-la-vie-Fabien-Vieilletoile.png"},
+            { titre: "Zombie", artiste: "Gims", img : "https://i.ibb.co/Cpr3gbbt/gims.webp" },
+            { titre: "Sur ma route", artiste: "Black M", img : "https://i.ibb.co/bjJghVwF/black-m-ip-4.jpg" },
+            { titre: "Dommage", artiste: "BigFlo et Oli", img : "https://i.ibb.co/VW3RF88y/bigflo-oli.jpg" },
+            { titre: "Démon de minuit", artiste: "Images" , img : "https://i.ibb.co/90GLqVS/maxresdefault.jpg"},
+            { titre: "Je suis pas un héros", artiste: "Daniel Balavoine", img : "https://i.ibb.co/JjqyZBpj/1444x920-chanteur-daniel-balavoine-1984.webp" },
+            { titre: "No one", artiste: "Alicia Keys", img : "https://i.ibb.co/xS6YWzvG/08-KEYS-01-tzvf-medium-Square-At3-X.jpg" },
+            { titre: "Casquette à l'envers", artiste: "Sexion d'Assaut", img : "https://i.ibb.co/n84mCmT0/sexion.jpg" },
+            { titre: "Prie pour moi", artiste: "Gims/Maska", img : "https://i.ibb.co/Cpr3gbbt/gims.webp" },
+            { titre: "Clic clic pan pan", artiste: "Yans", img : "https://i.ibb.co/fYxzWH7y/YANNS-Totem-Production-01.webp" },
+            { titre: "Don't stop the party", artiste: "Black Eyed Peas", img : "https://i.ibb.co/kgCNG8Gr/Les-Black-Eyed-Peas-en-concert-au-VIP-Room-Paris-3-cropped.jpg" },
+            { titre: "Move your body", artiste: "Justin Timberlake", img :"https://i.ibb.co/0knZRFr/medias-2024-09-xjoo3lwh2dqnooeyr-iei7pqh4wzbezxzfret7qeixc-66ed32cce900d.webp" },
+            { titre: "Show must go on", artiste: "Queen" , img : "https://i.ibb.co/r2bMdt3J/Queen-A-Night-At-The-Opera-1975-Elektra-publicity-photo-02.jpg"},
+            { titre: "J'cours après l'oseille", artiste: "Niro", img : "https://i.ibb.co/qLW6N8Rn/Niro-Photo-Profil-Site-3-1536x1024.jpg" },
+            { titre: "Magic in the air", artiste: "Magic System", img : "https://i.ibb.co/gZcwsqRd/magic-in-the-air-du-groupe-magic-system-passe-le-cap-des-100millions-de-vue-durant-l-euro.jpg" },
+            { titre: "Suavemente", artiste: "Soolking", img: "https://i.ibb.co/vCW0LWpH/medias-2023-09-t7lbqtkjloj-zejzrxdux3a8favq9ylfpym-9njt02s-65168f20365b2.webp" },
+            { titre: "Crazy", artiste: "Gnarls Barkley", img : "https://i.ibb.co/hJPz9wFw/Gnarls-Barkley.jpg" },
+            { titre: "Break your heart", artiste: "Taio Cruz", img : "https://i.ibb.co/qYMxqhgn/ab6761610000e5eb153171480a6f22912253b9f1.jpg" },
+            { titre: "Blanka", artiste: "PNL", img : "https://i.ibb.co/PvRCbM3C/2048.webp" },
+            { titre: "J'comprends pas", artiste: "PNL", img : "https://i.ibb.co/PvRCbM3C/2048.webp" },
+            { titre: "Balader", artiste: "Sexion d'Assaut", img : "https://i.ibb.co/n84mCmT0/sexion.jpg" },
+            { titre: "Wake Me Up", artiste: "Avicii", img : "https://i.ibb.co/2YKP6YM6/avatars-000330767037-lhcj27-t500x500.jpg" }
+        ];
+
+        let fileAttente = [];
+
+        function melanger(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function generer() {
+            if (fileAttente.length === 0) {
+                fileAttente = melanger([...baseRepertoire]);
+            }
+
+            const item = fileAttente.pop();
+            document.getElementById('affichage').innerHTML = `<strong>${item.titre}</strong><br><em>${item.artiste}</em>`;
+            document.body.style.backgroundImage = `url('${item.img}')`;
+            document.getElementById('compteur').innerText = `Titres restants : ${fileAttente.length} / ${baseRepertoire.length}`;
+        }
+    </script>
+</body>
+</html>
